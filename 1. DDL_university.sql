@@ -112,3 +112,26 @@ create table prereq
 	 foreign key (prereq_id) references course
 	);
 
+create view faculty as
+	select ID, name, dept_name
+	from instructor
+
+create view departments_total_salary(dept_name, total_salary) as
+	select dept_name, sum(salary)
+	from instructor
+	group by dept_name
+
+create view Comp_Sci_fall_2009 as
+	select course.course_id, sec_id, building, room_number
+	from course, section
+	where course.course_id = section.course_id
+		and course.dept_name = 'Comp. Sci.'
+		and section.semester = 'fall'
+		and section.year = '2009';
+
+create view instructor_info as
+	select ID, name, building
+	from instructor, department
+	where instructor.dept_name = department.dept_name
+
+create index studentID_index on student(ID)

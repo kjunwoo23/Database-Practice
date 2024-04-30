@@ -311,3 +311,31 @@ update student
 					and student.ID = takes.ID
 					and takes.grade <> 'F'
 					and takes.grade is not null)
+
+select *
+from course
+left join prereq on course.course_id = prereq.course_id
+
+select *
+from course
+right join prereq on course.course_id = prereq.course_id
+
+select *
+from course
+full join prereq on course.course_id = prereq.course_id
+
+select ID, name, dept_name
+from instructor
+
+select *
+from faculty
+
+select *
+from departments_total_salary
+
+select *
+from Comp_Sci_fall_2009
+
+select *
+from student with(index(studentid_index))
+where ID = '10481'

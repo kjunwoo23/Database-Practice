@@ -192,3 +192,11 @@ insert into prereq values ('CS-347', 'CS-101');
 insert into prereq values ('EE-181', 'PHY-101');
 
 select * from prereq
+
+insert into faculty
+	values('30765', 'Park', 'Comp. Sci.');
+
+--error
+insert into instructor_info
+values('69987', 'Lee', 'Daeyang');
+
