@@ -135,3 +135,4 @@ create view instructor_info as
 	where instructor.dept_name = department.dept_name
 
 create index studentID_index on student(ID)
+
