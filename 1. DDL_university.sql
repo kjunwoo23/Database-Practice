@@ -78,6 +78,7 @@ create table takes
 	 semester		varchar(6),
 	 year			numeric(4,0),
 	 grade		        varchar(2),
+	 score			numeric(3,0),
 	 primary key (ID, course_id, sec_id, semester, year),
 	 foreign key (course_id,sec_id, semester, year) references section
 		on delete cascade,

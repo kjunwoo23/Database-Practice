@@ -460,3 +460,148 @@ with cte as(
 
 select *
 from cte
+
+
+
+
+--05/13
+
+
+if OBJECT_ID('student_gpa') is not null
+	drop table dbo.student_gpa;
+go
+
+create table student_gpa(
+	ID varchar(20),
+	GPA decimal(5,2)
+)
+
+select *
+from student_gpa
+
+insert into student_gpa(id, GPA)
+select s.id, (sum(t.score * c.credits) / sum(c.credits))
+from student as s
+	inner join takes as t on s.id=t.id
+	inner join course as c on t.course_id = c.course_id
+group by s.id
+
+
+
+select student_gpa.ID, student_gpa.GPA, RANK() over(order by student_gpa.gpa desc) as s_rank
+from student_gpa join student on student_gpa.ID = student.id
+where student.dept_name = 'Comp. Sci.'
+group by student_gpa.ID, student_gpa.gpa
+
+select ID, GPA, (1 + (select count(*)
+	from student_gpa as B
+	where B.GPA > A.GPA)) as s_rank
+from student_gpa as A
+order by s_rank
+
+
+select student.ID, dept_name,
+	rank() over(partition by dept_name order by student_gpa.gpa desc) as dept_rank
+from student_gpa join student on student.ID = student_gpa.ID
+group by dept_name, student.ID, student_gpa.GPA
+
+
+select id, NTILE(4) over (order by student_gpa.gpa desc) as quantile
+from student_gpa
+
+
+select ID, course_id, score, avg(score) over() as AVG_ALL
+from takes
+where course_id = 'CS-101'
+
+
+if OBJECT_ID('course_year') is not null
+	drop table dbo.course_year;
+go
+
+create table course_year(
+	year int,
+	courses int
+)
+
+insert into course_year
+	values
+		(2013, 25),
+		(2014, 22),
+		(2015, 21),
+		(2016, 23),
+		(2017, 25),
+		(2018, 23),
+		(2019, 21),
+		(2020, 22),
+		(2021, 24),
+		(2022, 24)
+
+select s.year, s.courses, case when count(*) < 3 then null else avg(s) end as SimpleMovingAverage
+from course_year as s
+	outer apply(
+		select top(3) courses
+		from course_year
+		where year < S.year
+		order by [year] desc) as D(s)
+group by s.year, s.courses
+order by s.year
+
+
+if OBJECT_ID('sport_dress') is not null
+	drop table dbo.sport_dress;
+go
+
+create table sport_dress(
+	item varchar(20),
+	color varchar(20),
+	size varchar(10),
+	quantity int
+)
+
+insert into sport_dress
+	values
+	('skirt', 'dark', 'small', 2),
+	('skirt', 'dark', 'medium', 5),
+	('skirt', 'dark', 'large', 1),
+	('skirt', 'white', 'small', 11),
+	('skirt', 'white', 'medium', 5),
+	('skirt', 'white', 'large', 3),
+	('skirt', 'yellow', 'small', 4),
+	('dress', 'yellow', 'medium', 9),
+	('dress', 'yellow', 'large', 8),
+	('dress', 'red', 'small', 7),
+	('dress', 'red', 'medium', 5),
+	('dress', 'red', 'large', 2),
+	('dress', 'red', 'small', 1),
+	('dress', 'dark', 'medium', 4),
+	('shirt', 'dark', 'large', 2),
+	('shirt', 'dark', 'small', 3),
+	('shirt', 'white', 'medium', 9),
+	('shirt', 'white', 'large', 2),
+	('shirt', 'white', 'small', 8),
+	('shirt', 'yellow', 'medium', 2),
+	('shirt', 'yellow', 'large', 6),
+	('shirt', 'yellow', 'small', 8),
+	('shirt', 'red', 'medium', 1),
+	('shirt', 'red', 'large', 2)
+
+select item, color, size, sum(quantity)
+from sport_dress
+group by cube(item, color, size, quantity)
+
+
+select item, [dark] as Dark, [white] as White, [yellow] as Yellow, [red] as Red
+from (
+	select item, color, quantity
+	from sport_dress) as ps
+	pivot(
+		sum(quantity)
+		for color in([dark], [white], [yellow], [red])) as pvt
+
+
+select item, color, size, sum(quantity)
+from sport_dress
+group by item, color, size with rollup
+
+
